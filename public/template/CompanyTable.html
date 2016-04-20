@@ -1,0 +1,61 @@
+<div ng-if="toggleTable">
+	<DIV class="container">
+		<h1 class="text text-center">COMPANIES LIST</h1>
+		<hr  class="styleHR" >
+		<!--ADD NEW COMPANY-->
+		<table class="table table-responsive">
+			<thead>
+				<tr>
+					<th>Parent</th>
+					<th>Name</th>
+					<th>Own Money</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+                    <th><div class="dropdown">
+                            <select name="ParentId" ng-model="company.ParentId">
+                                <option ng-repeat="node in companies" value="{{ node._id }}"> {{ node.Name }}</option>
+                            </select>
+                        </div>
+                    </th>
+					<th><input class="form-control" ng-model="company.Name"/></th>
+					<th><input class="form-control" type="number" step="0.01" ng-model="company.OwnMoney"/></th>
+					<th><button class="btn btn-primary" ng-click="addChildCompany(company.ParentId)">Add New Company</button></th>
+					<th><button class="btn btn-warning" ng-click="updateCompany(company._id)">Update Company</button></th>
+				</tr>
+			</tbody>
+		</table>
+		<!--ADD/EDIT COMPANY-->
+		<hr  class="styleHR" >
+		<table class="table"> 
+			<thead>
+				<tr>
+					<th>Parent Id</th>
+					<th>Name</th>
+					<th>Own Money</th>
+					<th>Child Money</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="company in companies">
+					<td>{{company.ParentId}}</td>
+					<td>{{company.Name}}</td>
+					<td>{{company.OwnMoney}}</td>
+					<td>{{company.ChildMoney}}</td>
+					<td class="editCompany">
+						<button class="btn btn-info" ng-click="editCompany(company._id)">
+							<i class="fa fa-pencil-square-o"></i>
+						</button>
+					</td>
+					<td class="deleteCompany">
+						<button class="btn btn-danger" ng-click="deleteCompany(company._id)">
+							<i class="fa fa-trash"></i>
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<hr  class="styleHR" >
+	</DIV>
+</div>
