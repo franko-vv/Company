@@ -148,8 +148,8 @@ function companyController($scope, $http) {
 
 			// КОСТЫЛЬ
 			moneyChildDict.push({
-				Id: array[i].Name,
-				ChildMoney: s
+				_id: array[i]._id,
+				ChildMoney: s - parseFloat(array[i].OwnMoney)
 			});
 
 		};
@@ -158,9 +158,32 @@ function companyController($scope, $http) {
 
 		$scope.childCompanyMoney = moneyDict;
 		console.log('moneyDict'); console.log(moneyDict);
+
+
+		var companiesAllInfo = equijoin(array, moneyChildDict, "_id", "_id", function (a, b) {
+		    return {
+				            _id: a._id,
+				            Name: a.Name,
+				            OwnMoney: a.OwnMoney,
+				            ParentId: a.ParentId,
+				            ChildMoney: b.ChildMoney
+		    };
+		});
+
+		$scope.companies = companiesAllInfo;
+		$scope.roots = companiesAllInfo;
+
+		console.log('------------------------------------------------------------------------------');
+		console.log('companiesAllInfo');console.log(companiesAllInfo);
+
+		alert(JSON.stringify(companiesAllInfo));
+
+
+
+
+
 	};
 
-	var aaaaa = [];
 	var recursiveSumma = function(i)
 	{
 		i = i || 0;
@@ -199,4 +222,24 @@ function companyController($scope, $http) {
         $scope.toggleTree = true;
         $scope.buildTree();
     }; 
+
+    // To CONCAT TWO ARRAYS
+function equijoin(primary, foreign, primaryKey, foreignKey, select) {
+    var m = primary.length, n = foreign.length, index = [], c = [];
+
+    for (var i = 0; i < m; i++) {     // loop through m items
+        var row = primary[i];
+        index[row[primaryKey]] = row; // create an index for primary table
+    }
+
+    for (var j = 0; j < n; j++) {     // loop through n items
+        var y = foreign[j];
+        var x = index[y[foreignKey]]; // get corresponding row from primary
+        c.push(select(x, y));         // select only the columns you need
+    }
+
+    return c;
+}
+
+
 };
