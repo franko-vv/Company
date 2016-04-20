@@ -18,6 +18,8 @@ function companyController($scope, $http) {
 				temparr.splice(0,1);
 				console.log('temparr');console.log(temparr);
 				$scope.companies = array;		
+				
+				// CALCULATE CHILD MONEY
 				calculateChild();	
 		});
 	};
@@ -80,6 +82,8 @@ function companyController($scope, $http) {
 
 	// Value into input forms
 	$scope.changedCompany = {};
+
+	// OPEN EDIT MODE FOR COMPANY
 	$scope.openEditMode = function(company){
 		$scope.changedCompany = company;
 		// If some item in edit mode reset changes
@@ -87,10 +91,12 @@ function companyController($scope, $http) {
     	$scope.editedItems[company._id] = !$scope.editedItems[company._id];
 	};
 
+	// CLOSE EDIT MODE FOR COMPANY
 	var closeEditMode = function(company){
 		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
 	};
 	
+	// UPDATE COMPANY
 	$scope.submitChange = function(company){
 		console.log('PUT IN ID:' + company._id);
 		console.log($scope.changedCompany);
@@ -106,9 +112,8 @@ function companyController($scope, $http) {
 	};
 
 	$scope.addChildCompany = function(id){
-		console.log(id);
 		if(id == undefined) id = 0;
-		console.log(id);
+		console.log('Parent id');console.log(id);
 		var childCompany = {};
 		childCompany.ParentId = id;
 
@@ -122,22 +127,34 @@ function companyController($scope, $http) {
 				$scope.companies.push(response.data);
 				//clear input fields
 				$scope.company = {};
+				// build tree
+				//$scope.showTree();
+				//refresh();
 			}, function(err){
 				console.log("Can't add company" + err);
 			});
-		refresh();
+		location.reload();
+		//reload page
 	};
 
+	var moneyChildDict = [];
 	var moneyDict = [];
-
 	var calculateChild = function()
 	{
-
 		for (var i = 0; i <= array.length-1; i++) 
 		{
 			var s = recursiveSumma(i);
-			console.log(s);
+			console.log(array[i].Name + ' - ' + s);//console.log(s);
+
+			// КОСТЫЛЬ
+			moneyChildDict.push({
+				Id: array[i].Name,
+				ChildMoney: s
+			});
+
 		};
+
+		console.log('moneyChildDict'); console.log(moneyChildDict);
 
 		$scope.childCompanyMoney = moneyDict;
 		console.log('moneyDict'); console.log(moneyDict);
@@ -148,7 +165,7 @@ function companyController($scope, $http) {
 	{
 		i = i || 0;
 		var sumChild = parseFloat(array[i].OwnMoney);
-		var count = array.length-1;
+		var count = array.length - 1;
 		for (var y = 0; y <= count; y++) 
 		{
 			if ((array[y].ParentId).toString() === (array[i]._id).toString())
@@ -166,9 +183,11 @@ function companyController($scope, $http) {
 		return sumChild;
 	};
 
+
+	// SHOW TABLE OR TREE TOGGLE
+	// DEFAULT: SHOW TABLE
 	$scope.toggleTable = true;
 	$scope.toggleTree = false;
-    $scope.textToggleBtn = "Show tree";
     $scope.showTable = function () {
             $scope.toggleTable = true;
             $scope.toggleTree = false;
@@ -180,6 +199,4 @@ function companyController($scope, $http) {
         $scope.toggleTree = true;
         $scope.buildTree();
     }; 
-
-
 };
