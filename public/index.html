@@ -104,9 +104,9 @@
 				      	<h3>{{  node.Name  }}</h3>
 	                  	<h4>Company Money - {{  node.OwnMoney  }} $</h4>
 	                	<h4>Child company money - {{  node.ChildMoney  }} $</h4>
-		                <a  href="#" ng-click="toggle(node)"><i class="fa fa-pencil-square-o editCompany"></i></a>
+		                <a  href="#" ng-click="openEditMode(node)"><i class="fa fa-pencil-square-o editCompany"></i></a>
 				    </div>
-
+				    
 				    <!-- EDIT COMPANY -->
 			        <div  class="col-md-10 col-lg-10" ng-show="editedItems[node._id]">
 				      	<h3>Company Name: </h3><input class="input" ng-model="changedCompany.Name">

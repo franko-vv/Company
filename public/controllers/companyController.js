@@ -42,18 +42,17 @@ function companyController($scope, $http) {
 		console.log('roots');console.log(roots);		
 	};
 
-
-
+	// FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
-		console.log(id);
+		console.log('GET ID COMPANY:' + id);
 		$http.get('/companies/' + id)
 			.then(function(response){
 				$scope.company = response.data;
 		});
 	};
 
+	// EDIT COMPANY
 	$scope.updateCompany = function(id){
-		console.log(id);
 		$http.put('/companies/' + id, $scope.company)
 			.then(function(response){
 				console.log('Updated company');
@@ -65,49 +64,45 @@ function companyController($scope, $http) {
 			});
 	};
 
+	// DELETE COMPANY BY ID
 	$scope.deleteCompany = function(id){
-		console.log(id);
+		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
 			.then(function(response){
-				console.log('Delete company');
-				refresh();
+				console.log('Delete successful.');
 				//Delete company from collection
 				//$scope.companies.splice(id, 1);
+				refresh();
 			}, function(err){
-				console.log("Can't delete company");
-				console.log(err.data);
+				console.log("Can't delete company");console.log(err.data);
 		});
 	};
 
-
-	$scope.changedCompany = {};		// TO ARRAY
-	$scope.changedITEMS = [];
-
-	$scope.editedItems = {};
-	$scope.toggle = function(company){
+	// Value into input forms
+	$scope.changedCompany = {};
+	$scope.openEditMode = function(company){
 		$scope.changedCompany = company;
-		//$scope.changedITEMS[editedItems[company._id]] = !changedITEMS[editedItems[company._id]];
+		// If some item in edit mode reset changes
+		$scope.editedItems = {};
     	$scope.editedItems[company._id] = !$scope.editedItems[company._id];
 	};
 
+	var closeEditMode = function(company){
+		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
+	};
 	
 	$scope.submitChange = function(company){
-
-		console.log('PUT');
-		console.log(company._id);	
-		console.log(company);
+		console.log('PUT IN ID:' + company._id);
 		console.log($scope.changedCompany);
-
 		$http.put('/companies/' + company._id, $scope.changedCompany)
 			.then(function(response){
-				console.log('Updated company');
-				refresh();
-				//clear input fields
-				//$scope.company = {};
+				console.log('Company has been updated.');
+				refresh();				
+				closeEditMode(company);
+				//$scope.changedCompany = {};
 			}, function(err){
 				console.log("Can't edit company" + err);
-			});
-		$scope.toggle(company);
+			});		
 	};
 
 	$scope.addChildCompany = function(id){
@@ -116,10 +111,8 @@ function companyController($scope, $http) {
 		console.log(id);
 		var childCompany = {};
 		childCompany.ParentId = id;
-		//childCompany.Right = $scope.company.Right;
-		//childCompany.Left = $scope.company.Left;
 
-		console.log(childCompany);
+		console.log('childCompany');console.log(childCompany);
 
 		$http.post('/companies', childCompany)
 			.then(function(response){
