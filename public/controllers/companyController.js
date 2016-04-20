@@ -133,11 +133,32 @@ function companyController($scope, $http) {
 				$scope.company = {};
 				// build tree
 				//$scope.showTree();
+
+//HARDCODING	
+
+
+				$scope.roots = [];	
+				$http.get('/companiesTree')
+					.then(function(response) {
+						console.log("Get companies array"); console.log(response);
+						arrayCompanies = response.data;			
+						calculateChild();
+						concat();
+						$scope.buildTree();
+				}, function(err) {
+					//error
+					console.log(err);
+				});	
+
+
+
+
+
 				//refresh();
 			}, function(err){
 				console.log("Can't add company" + err);
 			});
-		location.reload();
+		//location.reload();
 		//reload page
 	};
 
@@ -191,8 +212,8 @@ function companyController($scope, $http) {
 			.then(function(response){
 				console.log('Delete successful.');
 				//Delete company from collection
-				//$scope.companies.splice(id, 1);
-				refresh();
+				//document.getElementById(id).remove();
+				location.reload();
 			}, function(err){
 				console.log("Can't delete company");console.log(err.data);
 		});
