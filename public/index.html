@@ -36,7 +36,7 @@
 		<table class="table table-responsive">
 			<thead>
 				<tr>
-					<th>Parent Id</th>
+					<th>Parent</th>
 					<th>Name</th>
 					<th>Own Money</th>
 				</tr>
@@ -51,7 +51,7 @@
                     </th>
 					<th><input class="form-control" ng-model="company.Name"/></th>
 					<th><input class="form-control" type="number" step="0.01" ng-model="company.OwnMoney"/></th>
-					<th><button class="btn btn-primary" ng-click="addChildCompany()">Add New Company</button></th>
+					<th><button class="btn btn-primary" ng-click="addChildCompany(company.ParentId)">Add New Company</button></th>
 					<th><button class="btn btn-warning" ng-click="updateCompany(company._id)">Update Company</button></th>
 				</tr>
 			</tbody>
@@ -106,7 +106,7 @@
 	                	<h4>Child company money - {{  node.ChildMoney  }} $</h4>
 		                <a  href="#" ng-click="openEditMode(node)"><i class="fa fa-pencil-square-o editCompany"></i></a>
 				    </div>
-				    
+
 				    <!-- EDIT COMPANY -->
 			        <div  class="col-md-10 col-lg-10" ng-show="editedItems[node._id]">
 				      	<h3>Company Name: </h3><input class="input" ng-model="changedCompany.Name">
