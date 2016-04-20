@@ -4,8 +4,10 @@ myApp.controller("companyController", companyController);
 
 function companyController($scope, $http) {
 
-	var array = [];
-	var temparr = [];
+	var arrayCompanies = [];		// FOR GET REQUEST
+	var moneyChildDict = [];		// ARRAY FOR CHILD MONEY
+	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
+	//var temparr = [];
 
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
@@ -13,30 +15,32 @@ function companyController($scope, $http) {
 		$http.get('/companiesTree')
 			.then(function(response) {
 				console.log("Get companies array"); console.log(response);
-				array = response.data;
-				temparr = array.slice();
-				temparr.splice(0,1);
-				console.log('temparr');console.log(temparr);
-				$scope.companies = array;		
-				
-				// CALCULATE CHILD MONEY
-				calculateChild();	
-		});
+				arrayCompanies = response.data;
+				//temparr = array.slice();
+				//temparr.splice(0,1);
+				//console.log('temparr');console.log(temparr);				
+				calculateChild();
+				concat();
+		}, function(err) {
+			//error
+			console.log(err);
+		});	
 	};
 	// CALL METHOD WHEN FIRST TIME RUN
 	refresh();
 
+	$scope.roots = [];
 	// BUILT TREE COMPANY WORK OK
 	$scope.buildTree  = function(){
 		//if (array == null) return;
 		var map = {}, node, roots = [];
-		for (var i = 0; i < array.length; i += 1) 
+		for (var i = 0; i < $scope.companiesAllInfo.length; i += 1) 
 		{
-		    node = array[i];
+		    node = $scope.companiesAllInfo[i];
 		    node.children = [];
 		    map[node._id] = i;
 		    if (node.ParentId !== "0") 
-		        array[map[node.ParentId]].children.push(node);
+		        $scope.companiesAllInfo[map[node.ParentId]].children.push(node);
 		    else 
 		        roots.push(node);
 		}
@@ -44,7 +48,64 @@ function companyController($scope, $http) {
 		console.log('roots');console.log(roots);		
 	};
 
-	// FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
+	var calculateChild = function(){
+		for (var i = 0; i <= arrayCompanies.length-1; i++) 
+		{
+			var s = recursiveSumma(i);
+			console.log(arrayCompanies[i].Name + ' - ' + s);//console.log(s);
+
+			// КОСТЫЛЬ
+			var findKey = arrayCompanies[i]._id;
+			if (moneyChildDict.contains(findKey))
+			{
+				// if Company already exists
+				moneyChildDict[i].ChildMoney = s - parseFloat(arrayCompanies[i].OwnMoney);
+			}
+			else
+			{
+				moneyChildDict.push({
+				_id: arrayCompanies[i]._id,
+				ChildMoney: s - parseFloat(arrayCompanies[i].OwnMoney)
+				});
+			}
+		};
+		console.log('moneyChildDict'); console.log(moneyChildDict);
+	};
+
+	var recursiveSumma = function(i)
+	{
+		i = i || 0;
+		var sumChild = parseFloat(arrayCompanies[i].OwnMoney);
+		var count = arrayCompanies.length - 1;
+		for (var y = 0; y <= count; y++) 
+		{
+			if ((arrayCompanies[y].ParentId).toString() === (arrayCompanies[i]._id).toString())
+			{
+				sumChild += recursiveSumma(y);
+			}
+		}
+		return sumChild;
+	};
+
+	var concat = function(){
+		$scope.companiesAllInfo = concatToArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
+		{
+		    return {
+		            _id: a._id,
+		            Name: a.Name,
+		            OwnMoney: a.OwnMoney,
+		            ParentId: a.ParentId,
+		            ChildMoney: b.ChildMoney
+		    };
+		});
+		console.log('companiesAllInfo');console.log($scope.companiesAllInfo);
+		$scope.companies = $scope.companiesAllInfo;
+	};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+		// API GET by Id FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
 		console.log('GET ID COMPANY:' + id);
 		$http.get('/companies/' + id)
@@ -53,64 +114,7 @@ function companyController($scope, $http) {
 		});
 	};
 
-	// EDIT COMPANY
-	$scope.updateCompany = function(id){
-		$http.put('/companies/' + id, $scope.company)
-			.then(function(response){
-				console.log('Updated company');
-				refresh();
-				//clear input fields
-				$scope.company = {};
-			}, function(err){
-				console.log("Can't edit company" + err);
-			});
-	};
-
-	// DELETE COMPANY BY ID
-	$scope.deleteCompany = function(id){
-		console.log('DELETE COMPANY BY ID:' + id);
-		$http.delete('/companies/' + id)
-			.then(function(response){
-				console.log('Delete successful.');
-				//Delete company from collection
-				//$scope.companies.splice(id, 1);
-				refresh();
-			}, function(err){
-				console.log("Can't delete company");console.log(err.data);
-		});
-	};
-
-	// Value into input forms
-	$scope.changedCompany = {};
-
-	// OPEN EDIT MODE FOR COMPANY
-	$scope.openEditMode = function(company){
-		$scope.changedCompany = company;
-		// If some item in edit mode reset changes
-		$scope.editedItems = {};
-    	$scope.editedItems[company._id] = !$scope.editedItems[company._id];
-	};
-
-	// CLOSE EDIT MODE FOR COMPANY
-	var closeEditMode = function(company){
-		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
-	};
-	
-	// UPDATE COMPANY
-	$scope.submitChange = function(company){
-		console.log('PUT IN ID:' + company._id);
-		console.log($scope.changedCompany);
-		$http.put('/companies/' + company._id, $scope.changedCompany)
-			.then(function(response){
-				console.log('Company has been updated.');
-				refresh();				
-				closeEditMode(company);
-				//$scope.changedCompany = {};
-			}, function(err){
-				console.log("Can't edit company" + err);
-			});		
-	};
-
+		// API POST
 	$scope.addChildCompany = function(id){
 		if(id == undefined) id = 0;
 		console.log('Parent id');console.log(id);
@@ -137,76 +141,68 @@ function companyController($scope, $http) {
 		//reload page
 	};
 
-	var moneyChildDict = [];
-	var moneyDict = [];
-	var calculateChild = function()
-	{
-		for (var i = 0; i <= array.length-1; i++) 
-		{
-			var s = recursiveSumma(i);
-			console.log(array[i].Name + ' - ' + s);//console.log(s);
-
-			// КОСТЫЛЬ
-			moneyChildDict.push({
-				_id: array[i]._id,
-				ChildMoney: s - parseFloat(array[i].OwnMoney)
+		// API PUT EDIT COMPANY
+	$scope.updateCompany = function(id){
+		$http.put('/companies/' + id, $scope.company)
+			.then(function(response){
+				console.log('Updated company');
+				refresh();
+				//clear input fields
+				$scope.company = {};
+			}, function(err){
+				console.log("Can't edit company" + err);
 			});
+	};
 
-		};
+		// API PUT
+	$scope.submitChange = function(company){
+		console.log('PUT IN ID:' + company._id);
+		console.log($scope.changedCompany);
+		$http.put('/companies/' + company._id, $scope.changedCompany)
+			.then(function(response){
+				console.log('Company has been updated.');
+				closeEditMode(company);		
 
-		console.log('moneyChildDict'); console.log(moneyChildDict);
+//HARDCODING	
 
-		$scope.childCompanyMoney = moneyDict;
-		console.log('moneyDict'); console.log(moneyDict);
+				$scope.roots = [];	
+				$http.get('/companiesTree')
+					.then(function(response) {
+						console.log("Get companies array"); console.log(response);
+						arrayCompanies = response.data;			
+						calculateChild();
+						concat();
+						$scope.buildTree();
+				}, function(err) {
+					//error
+					console.log(err);
+				});	
 
+				//$scope.changedCompany = {};
+			}, function(err){
+				console.log("Can't edit company" + err);
+			});		
+	};
 
-		var companiesAllInfo = equijoin(array, moneyChildDict, "_id", "_id", function (a, b) {
-		    return {
-				            _id: a._id,
-				            Name: a.Name,
-				            OwnMoney: a.OwnMoney,
-				            ParentId: a.ParentId,
-				            ChildMoney: b.ChildMoney
-		    };
+		// API PUT DELETE COMPANY BY ID
+	$scope.deleteCompany = function(id){
+		console.log('DELETE COMPANY BY ID:' + id);
+		$http.delete('/companies/' + id)
+			.then(function(response){
+				console.log('Delete successful.');
+				//Delete company from collection
+				//$scope.companies.splice(id, 1);
+				refresh();
+			}, function(err){
+				console.log("Can't delete company");console.log(err.data);
 		});
-
-		$scope.companies = companiesAllInfo;
-		$scope.roots = companiesAllInfo;
-
-		console.log('------------------------------------------------------------------------------');
-		console.log('companiesAllInfo');console.log(companiesAllInfo);
-
-		alert(JSON.stringify(companiesAllInfo));
-
-
-
-
-
-	};
-
-	var recursiveSumma = function(i)
-	{
-		i = i || 0;
-		var sumChild = parseFloat(array[i].OwnMoney);
-		var count = array.length - 1;
-		for (var y = 0; y <= count; y++) 
-		{
-			if ((array[y].ParentId).toString() === (array[i]._id).toString())
-			{
-				sumChild += recursiveSumma(y);
-			}
-		}
-		// CHECK IF KEY ALREADY EXIST
-		{
-			moneyDict.push({
-			key: array[i]._id,
-			value: sumChild
-			});	
-		}
-		return sumChild;
 	};
 
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 	// SHOW TABLE OR TREE TOGGLE
 	// DEFAULT: SHOW TABLE
 	$scope.toggleTable = true;
@@ -223,23 +219,50 @@ function companyController($scope, $http) {
         $scope.buildTree();
     }; 
 
-    // To CONCAT TWO ARRAYS
-function equijoin(primary, foreign, primaryKey, foreignKey, select) {
-    var m = primary.length, n = foreign.length, index = [], c = [];
+    	// Value into input forms
+	$scope.changedCompany = {};
+	// OPEN EDIT MODE FOR COMPANY
+	$scope.openEditMode = function(company){
+		$scope.changedCompany = company;
+		// If some item in edit mode reset changes
+		$scope.editedItems = {};
+    	$scope.editedItems[company._id] = !$scope.editedItems[company._id];
+	};
 
-    for (var i = 0; i < m; i++) {     // loop through m items
-        var row = primary[i];
-        index[row[primaryKey]] = row; // create an index for primary table
-    }
+	// CLOSE EDIT MODE FOR COMPANY
+	var closeEditMode = function(company){
+		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
+	};
+	
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+    // CONCAT TWO ARRAYS
+	function concatToArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
+	{
+	    var m = primary.length, n = foreign.length, index = [], c = [];
 
-    for (var j = 0; j < n; j++) {     // loop through n items
-        var y = foreign[j];
-        var x = index[y[foreignKey]]; // get corresponding row from primary
-        c.push(select(x, y));         // select only the columns you need
-    }
+	    for (var i = 0; i < m; i++) {
+	        var row = primary[i];
+	        index[row[primaryKey]] = row;
+	    };
+	    for (var j = 0; j < n; j++) {
+	        var y = foreign[j];
+	        var x = index[y[foreignKey]];
+	        c.push(select(x, y));         
+	    };
+	    return c;
+	};
 
-    return c;
-}
 
-
+Array.prototype.contains = function(obj) 
+	{
+	    var i = this.length;
+	    while (i--) {
+	        if (this[i]._id === obj) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 };
