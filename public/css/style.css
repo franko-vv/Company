@@ -1,0 +1,124 @@
+body {
+    background: #805A3B;		/* Standard syntax (must be last) */
+    font-family: 'Lato', sans-serif;
+}
+
+h1, h2, h3, h4, h5, tr, td  {
+	color: #FEF2E4;
+}
+
+th {
+	font-size: 1.5em;
+	text-align: center;
+}
+
+select, option {
+	color: #2A2922;
+	background-color: #FD974F; 
+}
+
+hr.styleHR { 
+  height: 30px; 
+  border-style: solid; 
+  border-color: #FD974F; 
+  border-width: 1px 0 0 0; 
+  border-radius: 20px; 
+}
+
+hr.styleHR:before { 
+  display: block; 
+  content: ""; 
+  height: 30px; 
+  margin-top: -31px; 
+  border-style: solid; 
+  border-color: #FD974F; 
+  border-width: 0 0 1px 0; 
+  border-radius: 20px; 
+}
+
+.deleteCompany i {
+	font-size: 1.4em;
+}
+
+.editCompany i {
+	font-size: 1.4em;
+}
+
+.inline{
+	margin: 0;
+	padding: 0;
+	display: inline-block;
+}
+
+.remove{
+	padding-left: 30px;
+	padding-right: 30px;
+	color: #FD974F !important;
+}
+
+.treecolor{
+	padding-top: 15px;
+	background-color: #506D2F;
+}
+
+.darkcolor{
+	color: #C60000;
+}
+
+.red{
+	padding-top: .7em;
+	min-height: 50px;
+}
+
+.red div h3, .red div h4 {
+	display: inline;
+}
+
+.red div h4 {
+	padding-left: 2em;
+}
+
+.red div a i {
+	font-size: 1.5em;
+	color: #FEF2E4;
+}
+
+ul.tree li {
+	list-style-type: none;
+}
+
+.right{
+	text-align: right;
+}
+
+
+.editCompany{
+	padding-left: 2.5em;
+}
+
+.toggle{
+	padding: 0;
+}
+
+.toggle button {
+	border-radius: 0;
+	background-color: #C60000;
+	color: #FEF2E4;
+	font-size: 1.5em;
+	text-decoration: blink;
+	letter-spacing: .3em;
+	font-weight: 900;
+}
+
+.toggle button:hover{
+	background-color: #FD974F;
+	text-decoration: none;
+    display: inline-block;  
+    color: #FEF2E4;  
+}
+
+.toggle button:visited{
+    color: #FEF2E4;  
+}
+
+
