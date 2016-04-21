@@ -3,6 +3,10 @@
 	<div class="row">
         <h1 class="text text-center">COMPANIES TREE</h1>
     <hr  class="styleHR" >
+
+        <div ng-show="isLoading" class="text-center loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+        <div class="alert alert-danger" ng-show="errorMessage">{{ errorMessage }}</div>
+
     <div class="treecolor">
 
         <script type="text/ng-template" id="categoryTree">

@@ -8,7 +8,10 @@ function companyController($scope, $http) {
 	var moneyChildDict = [];			// ARRAY FOR CHILD MONEY -- Company ID - CHILD MONEY
 	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
 	var currentParentTable = [];		// arrayCompanies - DUPLICATE
-	$scope.roots = [];
+	$scope.roots = [];					// MULTIARRAY WITH CHILDREN
+
+	$scope.isLoading = true;			// To show text 'Loading' in view
+	$scope.errorMessage = "";
 
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
@@ -25,6 +28,9 @@ function companyController($scope, $http) {
 		}, function(err) {
 			//error
 			console.log(err);
+			$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});	
 	};
 	// CALL METHOD WHEN FIRST TIME RUN
@@ -33,7 +39,7 @@ function companyController($scope, $http) {
 	
 	// BUILT COMPANY TREE
 	$scope.buildTree  = function(){
-		//if (array == null) return;
+		if ($scope.companiesAllInfo == null) return;
 		var map = {}, node, roots = [];
 		for (var i = 0; i < $scope.companiesAllInfo.length; i += 1) 
 		{
@@ -53,7 +59,7 @@ function companyController($scope, $http) {
 		for (var i = 0; i <= arrayCompanies.length-1; i++) 
 		{
 			var summaChildCompanies = recursiveSumma(i);
-			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);			// КОСТЫЛЬ
+			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);			// HARDCODING
 			
 			var findKey = arrayCompanies[i]._id;
 			if (moneyChildDict.contains(findKey))
@@ -73,8 +79,7 @@ function companyController($scope, $http) {
 	{
 		i = i || 0;
 		var sumChild = parseFloat(arrayCompanies[i].OwnMoney);
-		var count = arrayCompanies.length - 1;
-		for (var y = 0; y <= count; y++) 
+		for (var y = 0; y <= arrayCompanies.length - 1; y++) 
 		{
 			if (arrayCompanies[y].ParentId === arrayCompanies[i]._id)
 				sumChild += recursiveSumma(y);
@@ -102,6 +107,7 @@ function companyController($scope, $http) {
 //////////////////////////////////////////////////////////////////////////////////////////
 		// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
+		$scope.isLoading = true;
 		console.log('GET ID COMPANY:' + id);
 		$http.get('/companies/' + id)
 			.then(function(response){
@@ -110,6 +116,9 @@ function companyController($scope, $http) {
 		}, function(err){
 			// error
 			console.log(err);
+			$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});
 	};
 
@@ -164,6 +173,7 @@ function companyController($scope, $http) {
 
 		// API PUT EDIT COMPANY
 	$scope.updateCompany = function(id){
+		$scope.isLoading = true;
 		$http.put('/companies/' + id, $scope.company)
 			.then(function(response){
 				console.log('Updated company');
@@ -171,7 +181,9 @@ function companyController($scope, $http) {
 				//clear input fields
 				$scope.company = {};
 			}, function(err){
-				console.log("Can't edit company" + err);
+				$scope.errorMessage = err.data;
+			}).finally(function(){
+				$scope.isLoading = false;
 			});
 	};
 
@@ -251,6 +263,7 @@ function companyController($scope, $http) {
 			alert("Can't delete root element.", "ERROR");
 			return;
 		}
+		$scope.isLoading = true;
 
 		updateChildCompanies(id, parentId);
 
@@ -262,7 +275,9 @@ function companyController($scope, $http) {
 				// REFRESH PAGE
 				location.reload();
 			}, function(err){
-				console.log("Can't delete company");console.log(err.data);
+				$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});
 	};
 

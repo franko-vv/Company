@@ -2,6 +2,10 @@
 	<DIV class="container">
 		<h1 class="text text-center">COMPANIES LIST</h1>
 		<hr  class="styleHR" >
+
+        <div ng-show="isLoading" class="text-center loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+        <div class="alert alert-danger" ng-show="errorMessage">{{ errorMessage }}</div>
+
 		<!--ADD NEW COMPANY-->
 		<table class="table table-responsive">
 			<thead>
@@ -26,7 +30,8 @@
 				</tr>
 			</tbody>
 		</table>
-		<!--ADD/EDIT COMPANY-->
+
+		<!--LIST-->
 		<hr  class="styleHR" >
 		<table class="table"> 
 			<thead>
