@@ -10,13 +10,13 @@
 		<tr>
             <th><div class="dropdown">
                     <select name="ParentId" ng-model="company.ParentId">
-                        <option ng-repeat="node in companies" value="{{ node._id }}"> {{ node.Name }}</option>
+                        <option ng-repeat="node in companiesAllInfo" value="{{ node._id }}"> {{ node.Name }}</option>
                     </select>
                 </div>
             </th>
 			<th><input class="form-control" ng-model="company.Name"/></th>
 			<th><input class="form-control" type="number" step="0.01" ng-model="company.OwnMoney"/></th>
-			<th><button class="btn btn-primary" ng-click="addChildCompany(company.ParentId)">Add New Company</button></th>
+			<th><button class="btn btn-primary" ng-click="addChildCompany(company.ParentId, company)">Add New Company</button></th>
 			<th><button class="btn btn-warning" ng-click="updateCompany(company._id)">Update Company</button></th>
 		</tr>
 	</tbody>
