@@ -7,7 +7,7 @@ function companyController($scope, $http) {
 	var arrayCompanies = [];			// FOR GET REQUEST
 	var moneyChildDict = [];			// ARRAY FOR CHILD MONEY -- Company ID - CHILD MONEY
 	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
-	var currentParentTable = [];		// arrayCompanies - DUPLICATE
+	var currentParentTable = [];		// arrayCompanies - DUPLICATE (for table view)
 	$scope.roots = [];					// MULTIARRAY WITH CHILDREN
 
 	$scope.isLoading = true;			// To show text 'Loading' in view
@@ -49,18 +49,15 @@ function companyController($scope, $http) {
 		    else 
 		        roots.push(node);
 		}
-		$scope.roots = roots;
-		console.log('roots');console.log(roots);		
+		$scope.roots = roots;	
 	};
 
 	var calculateChild = function(){
 		for (var i = 0; i <= arrayCompanies.length-1; i++) 
 		{
 			var summaChildCompanies = recursiveSumma(i);
-			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);			// HARDCODING
 			
-			var findKey = arrayCompanies[i]._id;
-			if (moneyChildDict.contains(findKey))
+			if (moneyChildDict.contains(arrayCompanies[i]._id))
 			{
 				// if Company already exists
 				moneyChildDict[i].ChildMoney = summaChildCompanies;
@@ -73,6 +70,7 @@ function companyController($scope, $http) {
 		};
 	};
 
+	// Calculate company earnings with child companies earnings
 	var recursiveSumma = function(i)
 	{
 		i = i || 0;
@@ -87,7 +85,7 @@ function companyController($scope, $http) {
 
 	var concat = function(){
 		// Concatinate ChildMoney from moneyChildDict to Companies Array from GET req 
-		$scope.companiesAllInfo = concatToArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
+		$scope.companiesAllInfo = concatTwoArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
 		{
 		    return {
 		            _id: a._id,
@@ -97,12 +95,9 @@ function companyController($scope, $http) {
 		            ChildMoney: b.ChildMoney
 		    };
 		});
-		$scope.companies = $scope.companiesAllInfo;
 	};
 
-//////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////API//////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 		// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
 		$scope.isLoading = true;
@@ -113,7 +108,6 @@ function companyController($scope, $http) {
 				$scope.company = response.data;
 		}, function(err){
 			// error
-			console.log(err);
 			$scope.errorMessage = err.data;
 		}).finally(function(){
 			$scope.isLoading = false;
@@ -121,55 +115,32 @@ function companyController($scope, $http) {
 	};
 
 		// API POST
-	$scope.addChildCompany = function(id){
+	$scope.addChildCompany = function(id, company){
+		$scope.isLoading = true;
 		if(id == undefined) id = 0;
-		console.log('Parent id');console.log(id);
-		var childCompany = {};
+		
+		var childCompany = company || {};
 		childCompany.ParentId = id;
-
-		console.log('childCompany');console.log(childCompany);
 
 		$http.post('/companies', childCompany)
 			.then(function(response){
 				console.log('Added new company');
-				console.log(response.data);
 				//Add to collection
-				$scope.companies.push(response.data);
+				$scope.companiesAllInfo.push(response.data);
 				currentParentTable.push(response.data);
 				//clear input fields
 				$scope.company = {};
 				// build tree
-				//$scope.showTree();
-
-//HARDCODING	
-
-
-				$scope.roots = [];	
-				$http.get('/companies')
-					.then(function(response) {
-						console.log("Get companies array"); console.log(response);
-						arrayCompanies = response.data;			
-						calculateChild();
-						concat();
-						$scope.buildTree();
-				}, function(err) {
-					//error
-					console.log(err);
-				});	
-
-
-
-
-
-				//refresh();
+				refresh();
+				$scope.buildTree();
 			}, function(err){
-				console.log("Can't add company" + err);
+				$scope.errorMessage = err.data;
+			}).finally(function(){
+				$scope.isLoading = false;
 			});
-		//location.reload();
-		//reload page
 	};
 
-		// API PUT EDIT COMPANY
+	// API PUT EDIT COMPANY --- FROM TABLE
 	$scope.updateCompany = function(id){
 		$scope.isLoading = true;
 		$http.put('/companies/' + id, $scope.company)
@@ -185,48 +156,32 @@ function companyController($scope, $http) {
 			});
 	};
 
-		// API PUT
-	$scope.submitChange = function(company){
-		console.log('PUT IN ID:' + company._id);
+	// API PUT --- FROM TREE
+	$scope.submitChange = function(id){
+		$scope.isLoading = true;
+		console.log('PUT IN ID:' + id);
 		console.log($scope.changedCompany);
-		$http.put('/companies/' + company._id, $scope.changedCompany)
+
+		//Get current item
+		var item = getItemByIdFromArray(arrayCompanies, id); 	
+		var index = arrayCompanies.indexOf(item);
+
+		$http.put('/companies/' + id, $scope.changedCompany)
 			.then(function(response){
 				console.log('Company has been updated.');
-				closeEditMode(company);		
-
-//HARDCODING	
-
-				$scope.roots = [];	
-				$http.get('/companies')
-					.then(function(response) {
-						console.log("Get companies array"); console.log(response);
-						arrayCompanies = response.data;			
-						calculateChild();
-						concat();
-						$scope.buildTree();
-				}, function(err) {
-					//error
-					console.log(err);
-				});	
-
-				//$scope.changedCompany = {};
+				closeEditMode(id);
+				arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
+				arrayCompanies[index].Name = $scope.changedCompany.Name;
+				calculateChild();
+				concat();
+				$scope.buildTree();
+				$scope.changedCompany = {};
 			}, function(err){
-				console.log("Can't edit company" + err);
+				$scope.errorMessage = err.data;
+			}).finally(function(){
+				$scope.isLoading = false;
 			});		
 	};
-
-
-
-
-
-	var editItemsWhenDelete = function (globalArr, id) 
-	{
-		for (var i = globalArr.length - 1; i >= 0; i--) {
-			if (globalArr[i]._id === id)
-				return globalArr[i];
-		};
-	};
-
 
 	var updateChildCompanies = function(id, parentId) {
 		// IF DELETED ELEMENT HAS CHILDREN SET THEIR PARENTID TO LEVEL UP (DELETED ELEMENT PARENTID)
@@ -237,13 +192,11 @@ function companyController($scope, $http) {
 			if (currentParentTable[i].ParentId === id)
 				childElement.push(currentParentTable[i]._id);
 		};
-
 		for (var i = childElement.length - 1; i >= 0; i--) 
 		{
 			// Set new parentId for child companies
-			var newItem = editItemsWhenDelete(arrayCompanies, childElement[i]);
+			var newItem = getItemByIdFromArray(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
-			
 			// Update child
 			$http.put('/companies/' + newItem._id, newItem)
 				.then(function(response){
@@ -254,19 +207,16 @@ function companyController($scope, $http) {
 		};
 	};
 
-		// API PUT DELETE COMPANY BY ID
+	// API DELETE COMPANY BY ID
 	$scope.deleteCompany = function(id, parentId){	
 
 		$scope.isLoading = true;
-
 		updateChildCompanies(id, parentId);
 
 		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
 			.then(function(response){
 				console.log('Delete successful.');
-				//Delete company from collection
-				// REFRESH PAGE
 				location.reload();
 			}, function(err){
 				$scope.errorMessage = err.data;
@@ -275,10 +225,6 @@ function companyController($scope, $http) {
 		});
 	};
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 	// SHOW TABLE OR TREE TOGGLE
 	// DEFAULT: SHOW TABLE
@@ -307,15 +253,21 @@ function companyController($scope, $http) {
 	};
 
 	// CLOSE EDIT MODE FOR COMPANY
-	var closeEditMode = function(company){
-		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
+	var closeEditMode = function(id){
+		$scope.editedItems[id] = !$scope.editedItems[id];
 	};
 	
 //////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
     // CONCAT TWO ARRAYS
-	function concatToArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
+	var getItemByIdFromArray = function (globalArr, id) 
+	{
+		for (var i = globalArr.length - 1; i >= 0; i--) {
+			if (globalArr[i]._id === id)
+				return globalArr[i];
+		};
+	};
+
+	function concatTwoArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
 	{
 	    var m = primary.length, n = foreign.length, index = [], c = [];
 

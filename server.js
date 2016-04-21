@@ -44,8 +44,8 @@ app.get('/companies/:id', function (req,res) {
 app.post('/companies', function (req,res){
 	var newCompany = new Company({
 		ParentId: req.body.ParentId,
-		Name: "New Company",
-		OwnMoney: 0
+		Name: req.body.Name || "New Company",
+		OwnMoney: req.body.OwnMoney || 0
 	});
 	console.log(newCompany);
 	//Add do Db
