@@ -54,7 +54,7 @@
 						</button>
 					</td>
 					<td class="deleteCompany">
-						<button class="btn btn-danger" ng-click="deleteCompany(company._id, company.ParentId)">
+						<button class="btn btn-danger" ng-really-message="Are you sure to delete company {{company.Name}} ?" ng-really-click="deleteCompany(company._id, company.ParentId)">
 							<i class="fa fa-trash"></i>
 						</button>
 					</td>

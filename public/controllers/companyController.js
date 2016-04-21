@@ -16,7 +16,7 @@ function companyController($scope, $http) {
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
 	var refresh = function(){
-		$http.get('/companiesTree')
+		$http.get('/companies')
 			.then(function(response) {
 				console.log("Get companies array"); console.log(response);
 				arrayCompanies = response.data;
@@ -147,7 +147,7 @@ function companyController($scope, $http) {
 
 
 				$scope.roots = [];	
-				$http.get('/companiesTree')
+				$http.get('/companies')
 					.then(function(response) {
 						console.log("Get companies array"); console.log(response);
 						arrayCompanies = response.data;			
@@ -199,7 +199,7 @@ function companyController($scope, $http) {
 //HARDCODING	
 
 				$scope.roots = [];	
-				$http.get('/companiesTree')
+				$http.get('/companies')
 					.then(function(response) {
 						console.log("Get companies array"); console.log(response);
 						arrayCompanies = response.data;			
