@@ -44,7 +44,7 @@ app.get('/companiesTree', function (req,res) {
 	Company.find(function (err,docs){
 		if(err) console.log(err);
 		console.log("I receive Tree");
-		console.log(docs);
+		//console.log(docs);
 		res.json(docs);
 	});
 });
@@ -78,6 +78,7 @@ app.post('/companies', function (req,res){
 
 app.put('/companies/:id', function (req,res){
 	var id = req.params.id;
+	console.log('PUT req');
 	//Update do Db
 	Company.findByIdAndUpdate(id,
 			    {$set: 	{
@@ -88,6 +89,7 @@ app.put('/companies/:id', function (req,res){
 				}, {new: true }, 
 		function(err, doc){
 		console.log("API PUT");
+		console.log(doc);
 		res.json(doc);
 	});
 });

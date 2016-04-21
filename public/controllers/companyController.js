@@ -7,7 +7,7 @@ function companyController($scope, $http) {
 	var arrayCompanies = [];		// FOR GET REQUEST
 	var moneyChildDict = [];		// ARRAY FOR CHILD MONEY
 	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
-	//var temparr = [];
+	var currentParentTable = [];
 
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
@@ -16,7 +16,7 @@ function companyController($scope, $http) {
 			.then(function(response) {
 				console.log("Get companies array"); console.log(response);
 				arrayCompanies = response.data;
-				//temparr = array.slice();
+				currentParentTable = response.data.slice();
 				//temparr.splice(0,1);
 				//console.log('temparr');console.log(temparr);				
 				calculateChild();
@@ -129,6 +129,7 @@ function companyController($scope, $http) {
 				console.log(response.data);
 				//Add to collection
 				$scope.companies.push(response.data);
+				currentParentTable.push(response.data);
 				//clear input fields
 				$scope.company = {};
 				// build tree
@@ -205,8 +206,71 @@ function companyController($scope, $http) {
 			});		
 	};
 
+
+
+
+
+		var editItemsWhenDelete = function (globalArr, id) 
+		{
+			for (var i = globalArr.length - 1; i >= 0; i--) {
+				if (globalArr[i]._id === id)
+					return globalArr[i];
+			};
+		};
+
+
+
+
 		// API PUT DELETE COMPANY BY ID
-	$scope.deleteCompany = function(id){
+	$scope.deleteCompany = function(id, parentId){	
+		if (parentId == 0)
+		{
+			alert("Can't delete root element.", "ERROR");
+			return;
+		}
+
+		// IF DELETED ELEMENT HAS CHILDREN SET THEIR PARENTID TO LEVEL UP (DELETED ELEMENT PARENTID)
+		var childElement = [];
+		for (var i = currentParentTable.length - 1; i >= 0; i--) 
+		{
+			if (currentParentTable[i].ParentId === id)
+				childElement.push(currentParentTable[i]._id);
+
+		};
+		console.log(childElement);
+
+		for (var i = childElement.length - 1; i >= 0; i--) 
+		{
+					//find element by id in arraay
+			var newItem = editItemsWhenDelete(arrayCompanies, childElement[i]);
+			newItem.ParentId = parentId;
+
+			var iii = $scope.editCompany(i);
+
+			
+
+			$http.put('/companies/' + newItem._id, newItem)
+			.then(function(response){
+				console.log('Updated company');
+				//clear input fields
+			}, function(err){
+				console.log("Can't edit company" + err);
+			});
+		};
+
+		//return;
+
+
+
+
+
+
+
+
+
+
+
+
 		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
 			.then(function(response){

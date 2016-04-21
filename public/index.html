@@ -67,7 +67,7 @@
 		<table class="table"> 
 			<thead>
 				<tr>
-					<th>Parent Id</th>
+					<!--<th>Parent Id</th>-->
 					<th>Name</th>
 					<th>Own Money</th>
 					<th>Child Money</th>
@@ -75,7 +75,7 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="company in companies">
-					<td>{{company.ParentId}}</td>
+					<!--<td>{{company.ParentId}}</td>-->
 					<td>{{company.Name}}</td>
 					<td>{{company.OwnMoney}}</td>
 					<td>{{company.ChildMoney}}</td>
@@ -85,7 +85,7 @@
 						</button>
 					</td>
 					<td class="deleteCompany">
-						<button class="btn btn-danger" ng-click="deleteCompany(company._id)">
+						<button class="btn btn-danger" ng-click="deleteCompany(company._id, company.ParentId)">
 							<i class="fa fa-trash"></i>
 						</button>
 					</td>
@@ -122,7 +122,7 @@
 
 				    <div class="col-md-2 col-lg-2 right" >
 		                <a href="#" ng-click="addChildCompany(node._id)"><i class="fa fa-plus-square-o"></i></a>
-		                <a href="#" ng-click="deleteCompany(node._id)"><i class="fa fa-times remove"></i></a>
+		                <a href="#" ng-click="deleteCompany(node._id, node.ParentId)"><i class="fa fa-times remove"></i></a>
 	                </div>	                
 	            </div>
 	            <hr/>
