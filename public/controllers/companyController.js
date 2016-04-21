@@ -233,50 +233,32 @@ function companyController($scope, $http) {
 		var childElement = [];
 		for (var i = currentParentTable.length - 1; i >= 0; i--) 
 		{
+			// find children
 			if (currentParentTable[i].ParentId === id)
 				childElement.push(currentParentTable[i]._id);
-
 		};
-		console.log(childElement);
 
 		for (var i = childElement.length - 1; i >= 0; i--) 
 		{
-					//find element by id in arraay
+			// Set new parentId for child companies
 			var newItem = editItemsWhenDelete(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
-
-			var iii = $scope.editCompany(i);
-
 			
-
+			// Update child
 			$http.put('/companies/' + newItem._id, newItem)
-			.then(function(response){
-				console.log('Updated company');
-				//clear input fields
-			}, function(err){
-				console.log("Can't edit company" + err);
-			});
+				.then(function(response){
+					console.log('Updated child company ' + newItem._id);
+				}, function(err){
+					console.log("Can't edit company" + err);
+				});
 		};
-
-		//return;
-
-
-
-
-
-
-
-
-
-
-
 
 		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
 			.then(function(response){
 				console.log('Delete successful.');
 				//Delete company from collection
-				//document.getElementById(id).remove();
+				// REFRESH PAGE
 				location.reload();
 			}, function(err){
 				console.log("Can't delete company");console.log(err.data);
