@@ -194,11 +194,7 @@ function companyController($scope, $http) {
 			});		
 	};
 
-
-
-
-
-	var editItemsWhenDelete = function (globalArr, id) 
+	var getItemByIdFromArray = function (globalArr, id) 
 	{
 		for (var i = globalArr.length - 1; i >= 0; i--) {
 			if (globalArr[i]._id === id)
@@ -216,13 +212,16 @@ function companyController($scope, $http) {
 			if (currentParentTable[i].ParentId === id)
 				childElement.push(currentParentTable[i]._id);
 		};
-
 		for (var i = childElement.length - 1; i >= 0; i--) 
 		{
 			// Set new parentId for child companies
-			var newItem = editItemsWhenDelete(arrayCompanies, childElement[i]);
+			var newItem = getItemByIdFromArray(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
 			
+
+//HARDCODING
+
+
 			// Update child
 			$http.put('/companies/' + newItem._id, newItem)
 				.then(function(response){
@@ -237,15 +236,12 @@ function companyController($scope, $http) {
 	$scope.deleteCompany = function(id, parentId){	
 
 		$scope.isLoading = true;
-
 		updateChildCompanies(id, parentId);
 
 		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
 			.then(function(response){
 				console.log('Delete successful.');
-				//Delete company from collection
-				// REFRESH PAGE
 				location.reload();
 			}, function(err){
 				$scope.errorMessage = err.data;
