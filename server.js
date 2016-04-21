@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-//var mongojs = require('mongojs');				// For LocalDb
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
@@ -19,15 +18,12 @@ db.once('open', function() {
   console.log('Wooho');
 });
 
-//var db = mongojs('company', ['company']);		// For LocalDb
-
-
-
 app.use(express.static(__dirname + "/public"));
-//app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 
+//------------------------API--------------------------//
 app.get('/companies', function (req,res) {	
 	Company.find(function (err,docs){
 		if(err) console.log(err);
@@ -35,21 +31,6 @@ app.get('/companies', function (req,res) {
 		res.json(docs);
 	});
 });
-
-
-
-//-------------TREE---------------------
-app.get('/companiesTree', function (req,res) {		
-	
-	Company.find(function (err,docs){
-		if(err) console.log(err);
-		console.log("I receive Tree");
-		//console.log(docs);
-		res.json(docs);
-	});
-});
-//-------------TREE---------------------
-
 
 app.get('/companies/:id', function (req,res) {	
 	var id = req.params.id;
@@ -64,9 +45,7 @@ app.post('/companies', function (req,res){
 	var newCompany = new Company({
 		ParentId: req.body.ParentId,
 		Name: "New Company",
-		OwnMoney: 0//,
-		//Right: req.body.Right,
-		//Left: req.body.Left 
+		OwnMoney: 0
 	});
 	console.log(newCompany);
 	//Add do Db
