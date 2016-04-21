@@ -129,3 +129,12 @@ ul.tree li {
 	color: #FEF2E4;
 }
 
+.btn-root {
+	background-color: #FD974F;
+	color: #000;
+}
+
+.btn-root:hover {
+	background-color: #C60000;
+	color: #FD974F;
+}
