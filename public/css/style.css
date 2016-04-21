@@ -125,4 +125,8 @@ ul.tree li {
     color: #FEF2E4;  
 }
 
+.loading, .loading i{
+	font-size: 1.5em;
+	color: #FEF2E4;
+}
 

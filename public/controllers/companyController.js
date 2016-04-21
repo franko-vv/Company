@@ -4,10 +4,14 @@ myApp.controller("companyController", companyController);
 
 function companyController($scope, $http) {
 
-	var arrayCompanies = [];		// FOR GET REQUEST
-	var moneyChildDict = [];		// ARRAY FOR CHILD MONEY
+	var arrayCompanies = [];			// FOR GET REQUEST
+	var moneyChildDict = [];			// ARRAY FOR CHILD MONEY -- Company ID - CHILD MONEY
 	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
-	var currentParentTable = [];
+	var currentParentTable = [];		// arrayCompanies - DUPLICATE
+	$scope.roots = [];					// MULTIARRAY WITH CHILDREN
+
+	$scope.isLoading = true;			// To show text 'Loading' in view
+	$scope.errorMessage = "";
 
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
@@ -24,15 +28,18 @@ function companyController($scope, $http) {
 		}, function(err) {
 			//error
 			console.log(err);
+			$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});	
 	};
 	// CALL METHOD WHEN FIRST TIME RUN
 	refresh();
 
-	$scope.roots = [];
-	// BUILT TREE COMPANY WORK OK
+	
+	// BUILT COMPANY TREE
 	$scope.buildTree  = function(){
-		//if (array == null) return;
+		if ($scope.companiesAllInfo == null) return;
 		var map = {}, node, roots = [];
 		for (var i = 0; i < $scope.companiesAllInfo.length; i += 1) 
 		{
@@ -51,43 +58,37 @@ function companyController($scope, $http) {
 	var calculateChild = function(){
 		for (var i = 0; i <= arrayCompanies.length-1; i++) 
 		{
-			var s = recursiveSumma(i);
-			console.log(arrayCompanies[i].Name + ' - ' + s);//console.log(s);
-
-			// КОСТЫЛЬ
+			var summaChildCompanies = recursiveSumma(i);
+			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);			// HARDCODING
+			
 			var findKey = arrayCompanies[i]._id;
 			if (moneyChildDict.contains(findKey))
 			{
 				// if Company already exists
-				moneyChildDict[i].ChildMoney = s - parseFloat(arrayCompanies[i].OwnMoney);
+				moneyChildDict[i].ChildMoney = summaChildCompanies;
 			}
 			else
 			{
-				moneyChildDict.push({
-				_id: arrayCompanies[i]._id,
-				ChildMoney: s - parseFloat(arrayCompanies[i].OwnMoney)
-				});
+				// Add new company to array
+				moneyChildDict.push({_id: arrayCompanies[i]._id, ChildMoney: summaChildCompanies});
 			}
 		};
-		console.log('moneyChildDict'); console.log(moneyChildDict);
 	};
 
 	var recursiveSumma = function(i)
 	{
 		i = i || 0;
 		var sumChild = parseFloat(arrayCompanies[i].OwnMoney);
-		var count = arrayCompanies.length - 1;
-		for (var y = 0; y <= count; y++) 
+		for (var y = 0; y <= arrayCompanies.length - 1; y++) 
 		{
-			if ((arrayCompanies[y].ParentId).toString() === (arrayCompanies[i]._id).toString())
-			{
+			if (arrayCompanies[y].ParentId === arrayCompanies[i]._id)
 				sumChild += recursiveSumma(y);
-			}
 		}
 		return sumChild;
 	};
 
 	var concat = function(){
+		// Concatinate ChildMoney from moneyChildDict to Companies Array from GET req 
 		$scope.companiesAllInfo = concatToArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
 		{
 		    return {
@@ -98,19 +99,26 @@ function companyController($scope, $http) {
 		            ChildMoney: b.ChildMoney
 		    };
 		});
-		console.log('companiesAllInfo');console.log($scope.companiesAllInfo);
 		$scope.companies = $scope.companiesAllInfo;
 	};
 
 //////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////API//////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-		// API GET by Id FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
+		// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
+		$scope.isLoading = true;
 		console.log('GET ID COMPANY:' + id);
 		$http.get('/companies/' + id)
 			.then(function(response){
+				// success
 				$scope.company = response.data;
+		}, function(err){
+			// error
+			console.log(err);
+			$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});
 	};
 
@@ -165,6 +173,7 @@ function companyController($scope, $http) {
 
 		// API PUT EDIT COMPANY
 	$scope.updateCompany = function(id){
+		$scope.isLoading = true;
 		$http.put('/companies/' + id, $scope.company)
 			.then(function(response){
 				console.log('Updated company');
@@ -172,7 +181,9 @@ function companyController($scope, $http) {
 				//clear input fields
 				$scope.company = {};
 			}, function(err){
-				console.log("Can't edit company" + err);
+				$scope.errorMessage = err.data;
+			}).finally(function(){
+				$scope.isLoading = false;
 			});
 	};
 
@@ -210,25 +221,16 @@ function companyController($scope, $http) {
 
 
 
-		var editItemsWhenDelete = function (globalArr, id) 
-		{
-			for (var i = globalArr.length - 1; i >= 0; i--) {
-				if (globalArr[i]._id === id)
-					return globalArr[i];
-			};
+	var editItemsWhenDelete = function (globalArr, id) 
+	{
+		for (var i = globalArr.length - 1; i >= 0; i--) {
+			if (globalArr[i]._id === id)
+				return globalArr[i];
 		};
+	};
 
 
-
-
-		// API PUT DELETE COMPANY BY ID
-	$scope.deleteCompany = function(id, parentId){	
-		if (parentId == 0)
-		{
-			alert("Can't delete root element.", "ERROR");
-			return;
-		}
-
+	var updateChildCompanies = function(id, parentId) {
 		// IF DELETED ELEMENT HAS CHILDREN SET THEIR PARENTID TO LEVEL UP (DELETED ELEMENT PARENTID)
 		var childElement = [];
 		for (var i = currentParentTable.length - 1; i >= 0; i--) 
@@ -252,6 +254,18 @@ function companyController($scope, $http) {
 					console.log("Can't edit company" + err);
 				});
 		};
+	};
+
+		// API PUT DELETE COMPANY BY ID
+	$scope.deleteCompany = function(id, parentId){	
+		if (parentId == 0)
+		{
+			alert("Can't delete root element.", "ERROR");
+			return;
+		}
+		$scope.isLoading = true;
+
+		updateChildCompanies(id, parentId);
 
 		console.log('DELETE COMPANY BY ID:' + id);
 		$http.delete('/companies/' + id)
@@ -261,7 +275,9 @@ function companyController($scope, $http) {
 				// REFRESH PAGE
 				location.reload();
 			}, function(err){
-				console.log("Can't delete company");console.log(err.data);
+				$scope.errorMessage = err.data;
+		}).finally(function(){
+			$scope.isLoading = false;
 		});
 	};
 
@@ -321,8 +337,8 @@ function companyController($scope, $http) {
 	    return c;
 	};
 
-
-Array.prototype.contains = function(obj) 
+	// Check if array contains element by _id
+	Array.prototype.contains = function(obj) 
 	{
 	    var i = this.length;
 	    while (i--) {
