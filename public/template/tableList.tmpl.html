@@ -1,0 +1,26 @@
+<table class="table"> 
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Own Money</th>
+			<th>Child Money</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="company in companies">
+			<td>{{company.Name}}</td>
+			<td>{{company.OwnMoney}}</td>
+			<td>{{company.ChildMoney}}</td>
+			<td class="editCompany">
+				<button class="btn btn-info" ng-click="editCompany(company._id)">
+					<i class="fa fa-pencil-square-o"></i>
+				</button>
+			</td>
+			<td class="deleteCompany">
+				<button class="btn btn-danger" ng-really-message="Are you sure to delete company {{company.Name}} ?" ng-really-click="deleteCompany(company._id, company.ParentId)">
+					<i class="fa fa-trash"></i>
+				</button>
+			</td>
+		</tr>
+	</tbody>
+</table>
