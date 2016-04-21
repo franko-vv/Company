@@ -3,15 +3,21 @@
 <head>
 	<title>Company Tree</title>
 
-<!-- Latest compiled and minified CSS -->
+<!-- Latest compiled and minified CSS
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+ -->
 <!--FONT style -->
 <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+<!-- Optional theme 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">-->
+<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">-->
+
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css">
 
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
@@ -61,7 +67,7 @@
 		<table class="table"> 
 			<thead>
 				<tr>
-					<th>Parent Id</th>
+					<!--<th>Parent Id</th>-->
 					<th>Name</th>
 					<th>Own Money</th>
 					<th>Child Money</th>
@@ -69,7 +75,7 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="company in companies">
-					<td>{{company.ParentId}}</td>
+					<!--<td>{{company.ParentId}}</td>-->
 					<td>{{company.Name}}</td>
 					<td>{{company.OwnMoney}}</td>
 					<td>{{company.ChildMoney}}</td>
@@ -79,7 +85,7 @@
 						</button>
 					</td>
 					<td class="deleteCompany">
-						<button class="btn btn-danger" ng-click="deleteCompany(company._id)">
+						<button class="btn btn-danger" ng-click="deleteCompany(company._id, company.ParentId)">
 							<i class="fa fa-trash"></i>
 						</button>
 					</td>
@@ -99,7 +105,7 @@
 
         <script type="text/ng-template" id="categoryTree">
 
-	            <div class="row red">                
+	            <div class="row red" id = {{node._id}}>                
 				    <div class="col-md-10 col-lg-10" ng-hide="editedItems[node._id]">
 				      	<h3>{{  node.Name  }}</h3>
 	                  	<h4>Company Money - {{  node.OwnMoney  }} $</h4>
@@ -116,11 +122,11 @@
 
 				    <div class="col-md-2 col-lg-2 right" >
 		                <a href="#" ng-click="addChildCompany(node._id)"><i class="fa fa-plus-square-o"></i></a>
-		                <a href="#" ng-click="deleteCompany(node._id)"><i class="fa fa-times remove"></i></a>
-	                </div>
+		                <a href="#" ng-click="deleteCompany(node._id, node.ParentId)"><i class="fa fa-times remove"></i></a>
+	                </div>	                
 	            </div>
 	            <hr/>
-
+	            
         </div>
             <ul ng-if="node.children">
                 <li ng-repeat="node in node.children" ng-include="'categoryTree'"></li>
