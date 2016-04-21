@@ -85,7 +85,7 @@ function companyController($scope, $http) {
 
 	var concat = function(){
 		// Concatinate ChildMoney from moneyChildDict to Companies Array from GET req 
-		$scope.companiesAllInfo = concatToArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
+		$scope.companiesAllInfo = concatTwoArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
 		{
 		    return {
 		            _id: a._id,
@@ -140,7 +140,7 @@ function companyController($scope, $http) {
 			});
 	};
 
-		// API PUT EDIT COMPANY --- FROM TABLE
+	// API PUT EDIT COMPANY --- FROM TABLE
 	$scope.updateCompany = function(id){
 		$scope.isLoading = true;
 		$http.put('/companies/' + id, $scope.company)
@@ -156,7 +156,7 @@ function companyController($scope, $http) {
 			});
 	};
 
-		// API PUT ------------- FROM TREE
+	// API PUT --- FROM TREE
 	$scope.submitChange = function(id){
 		$scope.isLoading = true;
 		console.log('PUT IN ID:' + id);
@@ -177,20 +177,11 @@ function companyController($scope, $http) {
 				$scope.buildTree();
 				$scope.changedCompany = {};
 			}, function(err){
-				console.log("Can't edit company" + err);
+				$scope.errorMessage = err.data;
 			}).finally(function(){
 				$scope.isLoading = false;
 			});		
 	};
-
-	var getItemByIdFromArray = function (globalArr, id) 
-	{
-		for (var i = globalArr.length - 1; i >= 0; i--) {
-			if (globalArr[i]._id === id)
-				return globalArr[i];
-		};
-	};
-
 
 	var updateChildCompanies = function(id, parentId) {
 		// IF DELETED ELEMENT HAS CHILDREN SET THEIR PARENTID TO LEVEL UP (DELETED ELEMENT PARENTID)
@@ -268,7 +259,15 @@ function companyController($scope, $http) {
 	
 //////////////////////////////////////////////////////////////////////////////////////////
     // CONCAT TWO ARRAYS
-	function concatToArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
+	var getItemByIdFromArray = function (globalArr, id) 
+	{
+		for (var i = globalArr.length - 1; i >= 0; i--) {
+			if (globalArr[i]._id === id)
+				return globalArr[i];
+		};
+	};
+
+	function concatTwoArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
 	{
 	    var m = primary.length, n = foreign.length, index = [], c = [];
 
