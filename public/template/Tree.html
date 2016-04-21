@@ -41,6 +41,12 @@
             <li ng-repeat="node in roots" ng-include="'categoryTree'"></li>
         </ul>
     </div>
+    <div class="row">
+	    <div class="col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3 root">
+	    	<button class="btn btn-block btn-info" ng-click="addChildCompany(company.ParentId)">Add Root Company</button>
+	    </div>
+    </div>
     <hr  class="styleHR" >
+
 </div>
 </div>
