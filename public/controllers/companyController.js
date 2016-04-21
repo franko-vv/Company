@@ -7,7 +7,7 @@ function companyController($scope, $http) {
 	var arrayCompanies = [];			// FOR GET REQUEST
 	var moneyChildDict = [];			// ARRAY FOR CHILD MONEY -- Company ID - CHILD MONEY
 	$scope.companiesAllInfo = [];		// ARRAYCOMPANIES + CHILD MONEY
-	var currentParentTable = [];		// arrayCompanies - DUPLICATE
+	var currentParentTable = [];		// arrayCompanies - DUPLICATE (for table view)
 	$scope.roots = [];					// MULTIARRAY WITH CHILDREN
 
 	$scope.isLoading = true;			// To show text 'Loading' in view
@@ -57,7 +57,7 @@ function companyController($scope, $http) {
 		for (var i = 0; i <= arrayCompanies.length-1; i++) 
 		{
 			var summaChildCompanies = recursiveSumma(i);
-			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);			// HARDCODING
+			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);
 			
 			var findKey = arrayCompanies[i]._id;
 			if (moneyChildDict.contains(findKey))
@@ -100,9 +100,7 @@ function companyController($scope, $http) {
 		$scope.companies = $scope.companiesAllInfo;
 	};
 
-//////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////API//////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 		// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
 		$scope.isLoading = true;
@@ -240,10 +238,6 @@ function companyController($scope, $http) {
 		});
 	};
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 	// SHOW TABLE OR TREE TOGGLE
 	// DEFAULT: SHOW TABLE
@@ -276,8 +270,6 @@ function companyController($scope, $http) {
 		$scope.editedItems[id] = !$scope.editedItems[id];
 	};
 	
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
     // CONCAT TWO ARRAYS
 	function concatToArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
