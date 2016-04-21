@@ -162,35 +162,30 @@ function companyController($scope, $http) {
 			});
 	};
 
-		// API PUT
-	$scope.submitChange = function(company){
-		console.log('PUT IN ID:' + company._id);
+		// API PUT ------------- FROM TREE
+	$scope.submitChange = function(id){
+		$scope.isLoading = true;
+		console.log('PUT IN ID:' + id);
 		console.log($scope.changedCompany);
-		$http.put('/companies/' + company._id, $scope.changedCompany)
+
+		//Get current item
+		var item = getItemByIdFromArray(arrayCompanies, id); 	
+		var index = arrayCompanies.indexOf(item);
+
+		$http.put('/companies/' + id, $scope.changedCompany)
 			.then(function(response){
 				console.log('Company has been updated.');
-				closeEditMode(company);		
-
-//HARDCODING	
-
-				$scope.roots = [];	
-				$http.get('/companies')
-					.then(function(response) {
-						console.log("Get companies array"); console.log(response);
-						arrayCompanies = response.data;			
-						calculateChild();
-						concat();
-						$scope.buildTree();
-				}, function(err) {
-					//error
-					console.log(err);
-				});	
-				//refresh();
-				//$scope.buildTree();
-
-				//$scope.changedCompany = {};
+				closeEditMode(id);
+				arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
+				arrayCompanies[index].Name = $scope.changedCompany.Name;
+				calculateChild();
+				concat();
+				$scope.buildTree();
+				$scope.changedCompany = {};
 			}, function(err){
 				console.log("Can't edit company" + err);
+			}).finally(function(){
+				$scope.isLoading = false;
 			});		
 	};
 
@@ -217,11 +212,6 @@ function companyController($scope, $http) {
 			// Set new parentId for child companies
 			var newItem = getItemByIdFromArray(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
-			
-
-//HARDCODING
-
-
 			// Update child
 			$http.put('/companies/' + newItem._id, newItem)
 				.then(function(response){
@@ -232,7 +222,7 @@ function companyController($scope, $http) {
 		};
 	};
 
-		// API PUT DELETE COMPANY BY ID
+	// API DELETE COMPANY BY ID
 	$scope.deleteCompany = function(id, parentId){	
 
 		$scope.isLoading = true;
@@ -282,8 +272,8 @@ function companyController($scope, $http) {
 	};
 
 	// CLOSE EDIT MODE FOR COMPANY
-	var closeEditMode = function(company){
-		$scope.editedItems[company._id] = !$scope.editedItems[company._id];
+	var closeEditMode = function(id){
+		$scope.editedItems[id] = !$scope.editedItems[id];
 	};
 	
 //////////////////////////////////////////////////////////////////////////////////////////
