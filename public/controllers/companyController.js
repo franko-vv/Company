@@ -49,18 +49,15 @@ function companyController($scope, $http) {
 		    else 
 		        roots.push(node);
 		}
-		$scope.roots = roots;
-		console.log('roots');console.log(roots);		
+		$scope.roots = roots;	
 	};
 
 	var calculateChild = function(){
 		for (var i = 0; i <= arrayCompanies.length-1; i++) 
 		{
 			var summaChildCompanies = recursiveSumma(i);
-			summaChildCompanies -= parseFloat(arrayCompanies[i].OwnMoney);
 			
-			var findKey = arrayCompanies[i]._id;
-			if (moneyChildDict.contains(findKey))
+			if (moneyChildDict.contains(arrayCompanies[i]._id))
 			{
 				// if Company already exists
 				moneyChildDict[i].ChildMoney = summaChildCompanies;
@@ -73,6 +70,7 @@ function companyController($scope, $http) {
 		};
 	};
 
+	// Calculate company earnings with child companies earnings
 	var recursiveSumma = function(i)
 	{
 		i = i || 0;
@@ -97,7 +95,6 @@ function companyController($scope, $http) {
 		            ChildMoney: b.ChildMoney
 		    };
 		});
-		$scope.companies = $scope.companiesAllInfo;
 	};
 
 /////////////////////////////////////////API//////////////////////////////////////////////
@@ -111,7 +108,6 @@ function companyController($scope, $http) {
 				$scope.company = response.data;
 		}, function(err){
 			// error
-			console.log(err);
 			$scope.errorMessage = err.data;
 		}).finally(function(){
 			$scope.isLoading = false;
@@ -119,18 +115,18 @@ function companyController($scope, $http) {
 	};
 
 		// API POST
-	$scope.addChildCompany = function(id){
+	$scope.addChildCompany = function(id, company){
 		$scope.isLoading = true;
 		if(id == undefined) id = 0;
-
-		var childCompany = {};
+		
+		var childCompany = company || {};
 		childCompany.ParentId = id;
 
 		$http.post('/companies', childCompany)
 			.then(function(response){
 				console.log('Added new company');
 				//Add to collection
-				$scope.companies.push(response.data);
+				$scope.companiesAllInfo.push(response.data);
 				currentParentTable.push(response.data);
 				//clear input fields
 				$scope.company = {};
@@ -144,7 +140,7 @@ function companyController($scope, $http) {
 			});
 	};
 
-		// API PUT EDIT COMPANY
+		// API PUT EDIT COMPANY --- FROM TABLE
 	$scope.updateCompany = function(id){
 		$scope.isLoading = true;
 		$http.put('/companies/' + id, $scope.company)
