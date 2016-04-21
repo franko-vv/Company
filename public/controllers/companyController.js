@@ -20,9 +20,7 @@ function companyController($scope, $http) {
 			.then(function(response) {
 				console.log("Get companies array"); console.log(response);
 				arrayCompanies = response.data;
-				currentParentTable = response.data.slice();
-				//temparr.splice(0,1);
-				//console.log('temparr');console.log(temparr);				
+				currentParentTable = response.data.slice();				
 				calculateChild();
 				concat();
 		}, function(err) {
@@ -258,11 +256,7 @@ function companyController($scope, $http) {
 
 		// API PUT DELETE COMPANY BY ID
 	$scope.deleteCompany = function(id, parentId){	
-		if (parentId == 0)
-		{
-			alert("Can't delete root element.", "ERROR");
-			return;
-		}
+
 		$scope.isLoading = true;
 
 		updateChildCompanies(id, parentId);

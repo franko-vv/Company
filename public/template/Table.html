@@ -7,60 +7,12 @@
         <div class="alert alert-danger" ng-show="errorMessage">{{ errorMessage }}</div>
 
 		<!--ADD NEW COMPANY-->
-		<table class="table table-responsive">
-			<thead>
-				<tr>
-					<th>Parent</th>
-					<th>Name</th>
-					<th>Own Money</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-                    <th><div class="dropdown">
-                            <select name="ParentId" ng-model="company.ParentId">
-                                <option ng-repeat="node in companies" value="{{ node._id }}"> {{ node.Name }}</option>
-                            </select>
-                        </div>
-                    </th>
-					<th><input class="form-control" ng-model="company.Name"/></th>
-					<th><input class="form-control" type="number" step="0.01" ng-model="company.OwnMoney"/></th>
-					<th><button class="btn btn-primary" ng-click="addChildCompany(company.ParentId)">Add New Company</button></th>
-					<th><button class="btn btn-warning" ng-click="updateCompany(company._id)">Update Company</button></th>
-				</tr>
-			</tbody>
-		</table>
-
-		<!--LIST-->
+		<ng-include src="'template/tableAddNew.tmpl.html'"></ng-include>
+		
 		<hr  class="styleHR" >
-		<table class="table"> 
-			<thead>
-				<tr>
-					<!--<th>Parent Id</th>-->
-					<th>Name</th>
-					<th>Own Money</th>
-					<th>Child Money</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="company in companies">
-					<!--<td>{{company.ParentId}}</td>-->
-					<td>{{company.Name}}</td>
-					<td>{{company.OwnMoney}}</td>
-					<td>{{company.ChildMoney}}</td>
-					<td class="editCompany">
-						<button class="btn btn-info" ng-click="editCompany(company._id)">
-							<i class="fa fa-pencil-square-o"></i>
-						</button>
-					</td>
-					<td class="deleteCompany">
-						<button class="btn btn-danger" ng-really-message="Are you sure to delete company {{company.Name}} ?" ng-really-click="deleteCompany(company._id, company.ParentId)">
-							<i class="fa fa-trash"></i>
-						</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		<!--LIST-->
+		<ng-include src="'template/tableList.tmpl.html'"></ng-include>
+		
 		<hr  class="styleHR" >
 	</DIV>
 </div>

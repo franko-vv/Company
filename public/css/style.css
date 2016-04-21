@@ -109,7 +109,6 @@ ul.tree li {
 	background-color: #C60000;
 	color: #FEF2E4;
 	font-size: 1.5em;
-	text-decoration: blink;
 	letter-spacing: .3em;
 	font-weight: 900;
 }
@@ -130,3 +129,12 @@ ul.tree li {
 	color: #FEF2E4;
 }
 
+.btn-root {
+	background-color: #FD974F;
+	color: #000;
+}
+
+.btn-root:hover {
+	background-color: #C60000;
+	color: #FD974F;
+}
