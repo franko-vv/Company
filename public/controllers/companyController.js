@@ -122,51 +122,28 @@ function companyController($scope, $http) {
 
 		// API POST
 	$scope.addChildCompany = function(id){
+		$scope.isLoading = true;
 		if(id == undefined) id = 0;
-		console.log('Parent id');console.log(id);
+
 		var childCompany = {};
 		childCompany.ParentId = id;
-
-		console.log('childCompany');console.log(childCompany);
 
 		$http.post('/companies', childCompany)
 			.then(function(response){
 				console.log('Added new company');
-				console.log(response.data);
 				//Add to collection
 				$scope.companies.push(response.data);
 				currentParentTable.push(response.data);
 				//clear input fields
 				$scope.company = {};
 				// build tree
-				//$scope.showTree();
-
-//HARDCODING	
-
-
-				$scope.roots = [];	
-				$http.get('/companies')
-					.then(function(response) {
-						console.log("Get companies array"); console.log(response);
-						arrayCompanies = response.data;			
-						calculateChild();
-						concat();
-						$scope.buildTree();
-				}, function(err) {
-					//error
-					console.log(err);
-				});	
-
-
-
-
-
-				//refresh();
+				refresh();
+				$scope.buildTree();
 			}, function(err){
-				console.log("Can't add company" + err);
+				$scope.errorMessage = err.data;
+			}).finally(function(){
+				$scope.isLoading = false;
 			});
-		//location.reload();
-		//reload page
 	};
 
 		// API PUT EDIT COMPANY
@@ -208,6 +185,8 @@ function companyController($scope, $http) {
 					//error
 					console.log(err);
 				});	
+				//refresh();
+				//$scope.buildTree();
 
 				//$scope.changedCompany = {};
 			}, function(err){
