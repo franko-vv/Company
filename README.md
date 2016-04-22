@@ -11,4 +11,4 @@ https://damp-cove-67356.herokuapp.com
 2. Install NodeJS.
 3. Open cmd.exe in project folder.
 4. Run command: 'node server.js'
-5. Open browser in link: 'localhost:3000'
+5. Open link: 'localhost:3000' in your browser
