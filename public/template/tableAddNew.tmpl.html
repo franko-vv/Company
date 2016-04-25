@@ -10,6 +10,7 @@
 		<tr>
             <th><div class="dropdown">
                     <select name="ParentId" ng-model="company.ParentId">
+                    	<option value="">Root company</option>
                         <option ng-repeat="node in companiesAllInfo" value="{{ node._id }}"> {{ node.Name }}</option>
                     </select>
                 </div>
