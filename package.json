@@ -1,0 +1,28 @@
+{
+  "name": "Company",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mongoose": "^4.4.12",
+    "body-parser": "^1.15.0",
+    "bootstrap": "^3.3.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franko-vv/Company.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/franko-vv/Company/issues"
+  },
+  "homepage": "https://github.com/franko-vv/Company#readme"
+}

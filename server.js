@@ -63,7 +63,7 @@ app.put('/companies/:id', function (req,res){
 			    {$set: 	{
 							ParentId: req.body.ParentId,
 							Name: req.body.Name,
-							OwnMoney: req.body.OwnMoney
+							OwnMoney: req.body.OwnMoney || 0
 							}
 				}, {new: true }, 
 		function(err, doc){
@@ -82,5 +82,5 @@ app.delete('/companies/:id', function (req,res){
 	});
 });
 
-app.listen(3000);
-console.log("Server running on port 3000");
+app.listen(process.env.PORT || 3000);
+console.log("Server running on port ");
