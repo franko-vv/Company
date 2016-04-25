@@ -9,8 +9,8 @@
 	<tbody>
 		<tr ng-repeat="company in companiesAllInfo">
 			<td>{{company.Name}}</td>
-			<td>{{company.OwnMoney}}</td>
-			<td>{{company.ChildMoney}}</td>
+			<td>{{company.OwnMoney | currency }}</td>
+			<td>{{company.ChildMoney | currency }}</td>
 			<td class="editCompany">
 				<button class="btn btn-info" ng-click="editCompany(company._id)">
 					<i class="fa fa-pencil-square-o"></i>
