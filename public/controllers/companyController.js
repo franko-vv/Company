@@ -13,7 +13,6 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	$scope.isLoading = true;			// To show text 'Loading' in view
 	$scope.errorMessage = "";
 
-	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
 	var refresh = function(){
 		companyApiFactory.getCompanies()
@@ -89,7 +88,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 				$scope.company = {};
 				// build tree
 				refresh();
-				$scope.buildTree();
+				buildTree();
 			}, function(err){
 				$scope.errorMessage = err.data;
 			}).finally(function(){
@@ -100,8 +99,6 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	// API PUT EDIT COMPANY --- FROM TABLE
 	$scope.updateCompany = function(id){
 		$scope.isLoading = true;
-		//ADD ID TO SCOPE COMPANY MB
-		//$http.put('/companies/' + id, $scope.company)
 		companyApiFactory.updateCompany($scope.company)
 			.then(function(response){
 				console.log('Updated company');
@@ -122,7 +119,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 		console.log($scope.changedCompany);
 
 		//Get current item
-		var item = getItemByIdFromArray(arrayCompanies, id); 	
+		var item = arrayService.getItem(arrayCompanies, id); 	
 		var index = arrayCompanies.indexOf(item);
 
 		//$http.put('/companies/' + id, $scope.changedCompany)
@@ -130,11 +127,12 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 			.then(function(response){
 				console.log('Company has been updated.');
 				closeEditMode(id);
-				arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
+				/*arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
 				arrayCompanies[index].Name = $scope.changedCompany.Name;
-				calculateChild();
-				concat();
-				$scope.buildTree();
+				calculateChildMoney();
+				concat();*/
+				refresh();
+				buildTree();
 				$scope.changedCompany = {};
 			}, function(err){
 				$scope.errorMessage = err.data;
@@ -155,7 +153,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 		for (var i = childElement.length - 1; i >= 0; i--) 
 		{
 			// Set new parentId for child companies
-			var newItem = arrayService.getItem(arrayCompanies, _id, childElement[i]);
+			var newItem = arrayService.getItem(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
 			// Update child
 			//$http.put('/companies/' + newItem._id, newItem)

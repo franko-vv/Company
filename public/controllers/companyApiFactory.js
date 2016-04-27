@@ -16,7 +16,7 @@
         };
 
         companyApiFactory.updateCompany = function (company) {
-            return $http.put(urlBase + '/' + company.id, company)
+            return $http.put(urlBase + '/' + company._id, company)
         };
 
         companyApiFactory.deleteCompany = function (id) {

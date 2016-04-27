@@ -2,7 +2,7 @@
 {
     var arrayService = {};
 
-    // Concatinate two array - primary with foreign
+    // Concatenate two arrays - primary with foreign
     // by key primaryKey = foreignKey
     arrayService.concatTwoArray = function (primary, foreign, primaryKey, foreignKey, select)
     {
@@ -30,9 +30,9 @@
         for (var i = 0; i < arrayInline.length; i += 1) {
             node = arrayInline[i];
             node.children = [];
-            map[node.id] = i;
-            if (node.parentId !== 0)
-                arrayInline[map[node.parentId]].children.push(node);
+            map[node._id] = i;
+            if (node.ParentId !== "0")
+                arrayInline[map[node.ParentId]].children.push(node);
             else
                 roots.push(node);
         };
@@ -40,12 +40,23 @@
     };
 
     // Get Item from array-globalArr with prop = toFind
-    arrayService.getItem = function (globalArr, prop, toFind)
-    {
+    arrayService.getItem = function (globalArr, toFind) {
         for (var i = globalArr.length - 1; i >= 0; i--) {
-            if (globalArr[i].prop === toFind)
+            if (globalArr[i]._id === toFind)
                 return globalArr[i];
         };
+    };
+
+    // Check if array contains element by id
+    arrayService.contains = function(obj) 
+    {
+        var i = this.length;
+        while (i--) {
+            if (this[i]._id === obj) {
+                return true;
+            }
+        }
+        return false;
     }
 
     return arrayService;
