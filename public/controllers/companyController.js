@@ -122,16 +122,14 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 		var item = arrayService.getItem(arrayCompanies, id); 	
 		var index = arrayCompanies.indexOf(item);
 
-		//$http.put('/companies/' + id, $scope.changedCompany)
 		companyApiFactory.updateCompany($scope.changedCompany)
 			.then(function(response){
 				console.log('Company has been updated.');
 				closeEditMode(id);
-				/*arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
+				arrayCompanies[index].OwnMoney = $scope.changedCompany.OwnMoney;
 				arrayCompanies[index].Name = $scope.changedCompany.Name;
 				calculateChildMoney();
-				concat();*/
-				refresh();
+				concat();
 				buildTree();
 				$scope.changedCompany = {};
 			}, function(err){
