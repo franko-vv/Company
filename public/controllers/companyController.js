@@ -21,7 +21,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 				console.log("Get companies array"); console.log(response);
 				arrayCompanies = response.data;
 				currentParentTable = response.data.slice();				
-				calculateChild();
+				calculateChildMoney();
 				concat();
 		}, function(err) {
 			//error
@@ -33,7 +33,6 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	};
 	// CALL METHOD WHEN FIRST TIME RUN
 	refresh();
-
 	
 	// BUILT COMPANY TREE
 	var buildTree = function(){
@@ -41,18 +40,20 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	};
 
 	var calculateChildMoney = function(){
-		moneyChildDict = childSummaService.calculateChild(arrayCompanies);
+		moneyChildDict = childSummaService.calculateChild(moneyChildDict, arrayCompanies);
 	};
 
-	var concat = arrayService.concatTwoArray(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b){
+	var concat = function() {
+		$scope.companiesAllInfo = arrayService.concatTwoArray(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b){
 	    return {
 	            _id: a._id,
 	            Name: a.Name,
 	            OwnMoney: a.OwnMoney,
 	            ParentId: a.ParentId,
 	            ChildMoney: b.ChildMoney
-	    };
-	});
+		    };
+		});
+	};
 
 	// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
@@ -154,7 +155,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 		for (var i = childElement.length - 1; i >= 0; i--) 
 		{
 			// Set new parentId for child companies
-			var newItem = getItemByIdFromArray(arrayCompanies, childElement[i]);
+			var newItem = arrayService.getItem(arrayCompanies, _id, childElement[i]);
 			newItem.ParentId = parentId;
 			// Update child
 			//$http.put('/companies/' + newItem._id, newItem)
@@ -200,7 +201,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
     	if($scope.toggleTree) return;
         $scope.toggleTable = false;
         $scope.toggleTree = true;
-        $scope.buildTree();
+        buildTree();
     }; 
 
     	// Value into input forms
@@ -219,14 +220,7 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	};
 	
 //////////////////////////////////////////////////////////////////////////////////////////
-    // CONCAT TWO ARRAYS
-	/*var getItemByIdFromArray = function (globalArr, id) 
-	{
-		for (var i = globalArr.length - 1; i >= 0; i--) {
-			if (globalArr[i]._id === id)
-				return globalArr[i];
-		};
-	};
+
 
 	// Check if array contains element by _id
 	Array.prototype.contains = function(obj) 
@@ -238,5 +232,5 @@ function companyController($scope, $http, arrayService, companyApiFactory, child
 	        }
 	    }
 	    return false;
-	}*/
+	}
 };
