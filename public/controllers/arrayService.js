@@ -46,18 +46,5 @@
                 return globalArr[i];
         };
     };
-
-    // Check if array contains element by id
-    arrayService.contains = function(obj) 
-    {
-        var i = this.length;
-        while (i--) {
-            if (this[i]._id === obj) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     return arrayService;
 })
