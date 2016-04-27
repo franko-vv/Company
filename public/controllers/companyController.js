@@ -2,7 +2,7 @@ var myApp = angular.module('app',[]);
 
 myApp.controller("companyController", companyController);
 
-function companyController($scope, $http) {
+function companyController($scope, $http, arrayService, companyApiFactory, childSummaService) {
 
 	var arrayCompanies = [];			// FOR GET REQUEST
 	var moneyChildDict = [];			// ARRAY FOR CHILD MONEY -- Company ID - CHILD MONEY
@@ -16,7 +16,7 @@ function companyController($scope, $http) {
 	// REFRESH VIEW
 	// GET ARRAY COMPANIES AND COPY TO TEMPORARY ARRAY TO DELETE ROOT COMPANY
 	var refresh = function(){
-		$http.get('/companies')
+		companyApiFactory.getCompanies()
 			.then(function(response) {
 				console.log("Get companies array"); console.log(response);
 				arrayCompanies = response.data;
@@ -36,73 +36,29 @@ function companyController($scope, $http) {
 
 	
 	// BUILT COMPANY TREE
-	$scope.buildTree  = function(){
-		if ($scope.companiesAllInfo == null) return;
-		var map = {}, node, roots = [];
-		for (var i = 0; i < $scope.companiesAllInfo.length; i += 1) 
-		{
-		    node = $scope.companiesAllInfo[i];
-		    node.children = [];
-		    map[node._id] = i;
-		    if (node.ParentId !== "0") 
-		        $scope.companiesAllInfo[map[node.ParentId]].children.push(node);
-		    else 
-		        roots.push(node);
-		}
-		$scope.roots = roots;	
+	var buildTree = function(){
+		$scope.roots = arrayService.createMultiArray($scope.companiesAllInfo);
 	};
 
-	var calculateChild = function(){
-		for (var i = 0; i <= arrayCompanies.length-1; i++) 
-		{
-			var summaChildCompanies = recursiveSumma(i);
-			
-			if (moneyChildDict.contains(arrayCompanies[i]._id))
-			{
-				// if Company already exists
-				moneyChildDict[i].ChildMoney = summaChildCompanies;
-			}
-			else
-			{
-				// Add new company to array
-				moneyChildDict.push({_id: arrayCompanies[i]._id, ChildMoney: summaChildCompanies});
-			}
-		};
+	var calculateChildMoney = function(){
+		moneyChildDict = childSummaService.calculateChild(arrayCompanies);
 	};
 
-	// Calculate company earnings with child companies earnings
-	var recursiveSumma = function(i)
-	{
-		i = i || 0;
-		var sumChild = parseFloat(arrayCompanies[i].OwnMoney);
-		for (var y = 0; y <= arrayCompanies.length - 1; y++) 
-		{
-			if (arrayCompanies[y].ParentId === arrayCompanies[i]._id)
-				sumChild += recursiveSumma(y);
-		}
-		return sumChild;
-	};
+	var concat = arrayService.concatTwoArray(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b){
+	    return {
+	            _id: a._id,
+	            Name: a.Name,
+	            OwnMoney: a.OwnMoney,
+	            ParentId: a.ParentId,
+	            ChildMoney: b.ChildMoney
+	    };
+	});
 
-	var concat = function(){
-		// Concatinate ChildMoney from moneyChildDict to Companies Array from GET req 
-		$scope.companiesAllInfo = concatTwoArraysByKey(arrayCompanies, moneyChildDict, "_id", "_id", function (a, b) 
-		{
-		    return {
-		            _id: a._id,
-		            Name: a.Name,
-		            OwnMoney: a.OwnMoney,
-		            ParentId: a.ParentId,
-		            ChildMoney: b.ChildMoney
-		    };
-		});
-	};
-
-/////////////////////////////////////////API//////////////////////////////////////////////
-		// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
+	// API GET:{id} FOR TABLE VIEW GET COMPANY BY ID TO INSERT INTO INPUT BOXES
 	$scope.editCompany = function(id) {
 		$scope.isLoading = true;
 		console.log('GET ID COMPANY:' + id);
-		$http.get('/companies/' + id)
+		companyApiFactory.getCompany(id)
 			.then(function(response){
 				// success
 				$scope.company = response.data;
@@ -122,7 +78,7 @@ function companyController($scope, $http) {
 		var childCompany = company || {};
 		childCompany.ParentId = id;
 
-		$http.post('/companies', childCompany)
+		companyApiFactory.insertCompany(childCompany)
 			.then(function(response){
 				console.log('Added new company');
 				//Add to collection
@@ -143,7 +99,9 @@ function companyController($scope, $http) {
 	// API PUT EDIT COMPANY --- FROM TABLE
 	$scope.updateCompany = function(id){
 		$scope.isLoading = true;
-		$http.put('/companies/' + id, $scope.company)
+		//ADD ID TO SCOPE COMPANY MB
+		//$http.put('/companies/' + id, $scope.company)
+		companyApiFactory.updateCompany($scope.company)
 			.then(function(response){
 				console.log('Updated company');
 				refresh();
@@ -166,7 +124,8 @@ function companyController($scope, $http) {
 		var item = getItemByIdFromArray(arrayCompanies, id); 	
 		var index = arrayCompanies.indexOf(item);
 
-		$http.put('/companies/' + id, $scope.changedCompany)
+		//$http.put('/companies/' + id, $scope.changedCompany)
+		companyApiFactory.updateCompany($scope.changedCompany)
 			.then(function(response){
 				console.log('Company has been updated.');
 				closeEditMode(id);
@@ -198,7 +157,8 @@ function companyController($scope, $http) {
 			var newItem = getItemByIdFromArray(arrayCompanies, childElement[i]);
 			newItem.ParentId = parentId;
 			// Update child
-			$http.put('/companies/' + newItem._id, newItem)
+			//$http.put('/companies/' + newItem._id, newItem)
+			companyApiFactory.updateCompany(newItem)
 				.then(function(response){
 					console.log('Updated child company ' + newItem._id);
 				}, function(err){
@@ -214,7 +174,8 @@ function companyController($scope, $http) {
 		updateChildCompanies(id, parentId);
 
 		console.log('DELETE COMPANY BY ID:' + id);
-		$http.delete('/companies/' + id)
+		//$http.delete('/companies/' + id)
+		companyApiFactory.deleteCompany(id)
 			.then(function(response){
 				console.log('Delete successful.');
 				location.reload();
@@ -259,28 +220,12 @@ function companyController($scope, $http) {
 	
 //////////////////////////////////////////////////////////////////////////////////////////
     // CONCAT TWO ARRAYS
-	var getItemByIdFromArray = function (globalArr, id) 
+	/*var getItemByIdFromArray = function (globalArr, id) 
 	{
 		for (var i = globalArr.length - 1; i >= 0; i--) {
 			if (globalArr[i]._id === id)
 				return globalArr[i];
 		};
-	};
-
-	function concatTwoArraysByKey (primary, foreign, primaryKey, foreignKey, select) 
-	{
-	    var m = primary.length, n = foreign.length, index = [], c = [];
-
-	    for (var i = 0; i < m; i++) {
-	        var row = primary[i];
-	        index[row[primaryKey]] = row;
-	    };
-	    for (var j = 0; j < n; j++) {
-	        var y = foreign[j];
-	        var x = index[y[foreignKey]];
-	        c.push(select(x, y));         
-	    };
-	    return c;
 	};
 
 	// Check if array contains element by _id
@@ -293,5 +238,5 @@ function companyController($scope, $http) {
 	        }
 	    }
 	    return false;
-	}
+	}*/
 };
